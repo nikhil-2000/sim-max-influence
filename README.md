@@ -1,1 +1,1 @@
-# sim-max-influence
+<h1>Simulating Influence Models for Random Graphs</h1>
