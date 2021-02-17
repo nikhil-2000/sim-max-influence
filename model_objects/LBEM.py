@@ -2,6 +2,8 @@
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
+from prettytable import PrettyTable
+
 """
 On initialising the model, need to take in
  -> Graph
@@ -25,21 +27,21 @@ class Live_Blocked_Model():
     def __init__(self,graph: nx.Graph ,p):
         for edge in graph.edges:
             u,v = edge
-            g[u][v]["p"] = p[u][v]
-            g[u][v]["isLive"] = False
+            graph[u][v]["p"] = p[u][v]
+            graph[u][v]["isLive"] = False
 
 
         for n in graph.nodes:
-            g.nodes[n]["isActive"] = False
+            graph.nodes[n]["isActive"] = False
 
 
         self.graph = graph
 
-    def run_model(self,active_set_0: set):
+    def run_model(self,active_set_0: set, mc = 100):
         g = self.graph
         final_active_dist = {}
         influences = []
-        for i in range(100):
+        for i in range(mc):
             self.set_edge_states()
 
             self.activate_set(active_set_0)
@@ -62,18 +64,22 @@ class Live_Blocked_Model():
 
             final_active_set = tuple(sorted(list(current_active_set)))
             if final_active_set not in final_active_dist:
-                final_active_dist[final_active_set] = 0
+                final_active_dist[final_active_set] = 1
             else:
                 final_active_dist[final_active_set] += 1
 
             influences.append(len(final_active_set))
             self.reset_states()
 
-        print(sum(influences)/len(influences))
-        print(influences)
+        self.influence = sum(influences)/len(influences)
+        table = PrettyTable()
+        table.field_names = ["Set","p"]
 
+        for k,v in final_active_dist.items():
+            row = k,v/mc
+            table.add_row(row)
 
-
+        self.final_dist = table
 
 
     def set_edge_states(self):
@@ -97,12 +103,3 @@ class Live_Blocked_Model():
         for n in active_set:
             g.nodes[n]["isActive"] = True
 
-
-n = 10
-p = 0.3
-g = nx.erdos_renyi_graph(n,p, directed=True)
-p_matrix = (np.ones((n,n)) - np.identity(n)) * 0.5
-model = Live_Blocked_Model(g,p_matrix)
-model.run_model(set([2]))
-nx.draw(g,with_labels=True)
-plt.show()
