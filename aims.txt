@@ -5,17 +5,3 @@ Define a live-edge model from a Independent Cascade Model
 
 Run the live-edge model
 
-Show how well 4 algorithms perform as the number of edges increase
--> Suspect when the graph is sparse, the high degree algorithm perform
-    as well as the greedy and CELF
--> As graph edge density increases, the greedy algorithm starts to outperform
-
-
-Greedy Alg:
-    Pick nodes that lead to greatest marginal increase
-
-CELF:
-
-Random:
-
-High Degree:

@@ -5,30 +5,33 @@ from model_objects.LBEM import Live_Blocked_Model
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+import time as t
 
 
 
 
-def run_models(n = 100, p = 0.2, p_icm = 0.05,iterations = 20):
+def run_models(n = 100, p = 0.2,iterations = 10, mc = 500):
     g = nx.erdos_renyi_graph(n,p, directed=True)
-    p_matrix = (np.ones((n,n)) - np.identity(n)) * p_icm
-    LBEM = Live_Blocked_Model(g,p_matrix)
-    ICM = Independent_Cascade_Model(g,p_icm)
-    # table = PrettyTable()
-    # table.field_names = ["Iteration","ICM","LBEM","diff"]
-    errors = []
-    percent_errors = []
+    p_matrix = np.random.rand(n,n)
+    LBEM = Live_Blocked_Model(g,p_matrix,from_model="ICM")
+    ICM = Independent_Cascade_Model(g,p_matrix)
+    errors,percent_errors = [], []
+    print("n =", n, ", tests =", iterations, ",p_random_graph =", round(p, 3), ",mc = ",mc)
     for i in range(iterations):
-        size = np.random.randint(1,n//2)
+        size = np.random.randint(1,10)
         initial_active_set = {np.random.randint(0,n) for x in range(size)}
-        LBEM.run_model(initial_active_set,1000)
-        ICM.run_model(initial_active_set,1000)
+        t0 = t.time()
+        LBEM.run_model(initial_active_set,mc)
+        t1 = t.time()
+        ICM.run_model(initial_active_set,mc)
+        t2 = t.time()
         e = abs( LBEM.influence - ICM.influence)
         percent_error= 100 * e/np.average([LBEM.influence,ICM.influence])
         errors.append(e)
         percent_errors.append(percent_error)
-        # row = [i+1,LBEM.influence,ICM.influence,LBEM.influence - ICM.influence]
-        # table.add_row(row)
+        print("LBEM:",t1 - t0, " ICM:",t2 - t1)
+        print("LBEM:",LBEM.influence, " ICM:",ICM.influence)
+        print()
 
     avg_errors = np.average(errors)
     avg_percent_error = np.average(percent_errors)
@@ -42,7 +45,14 @@ def run_models(n = 100, p = 0.2, p_icm = 0.05,iterations = 20):
     print("Percent Errors larger than 1: ", len(large_error))
 
 
-for i in [0.01,0.05,0.1,0.15,0.2]:
-    print("n = 100, p_icm_lbem = 0.05,tests = 20,p_random_graph =",i)
-    run_models(p = i)
+
+# for p_edge in [0.01,0.1,0.2, 0.3]:
+#     for p_icm_lbem in [0.01,0.05,0.1,0.2]:
+#         print("n = 100, p_icm_lbem = ",p_icm_lbem,",tests = 20,p_random_graph =",p_edge)
+#         run_models(p_icm= p_icm_lbem,p = p_edge)
+#         print()
+
+for i in range(5):
+    p_edge = np.random.uniform(0.01,0.2)
+    run_models(n=100, p = p_edge, mc = 500,iterations=10)
     print()
