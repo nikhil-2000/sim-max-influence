@@ -26,6 +26,9 @@ class Independent_Cascade_Model():
 
         self.G = graph
 
+    def get_graph(self):
+        return self.G
+
     def run_model(self,active_set_0: set,mc = 100):
         self.active_count = {n:0 for n in self.G.nodes}
         for active in active_set_0: self.active_count[active] = mc
@@ -44,6 +47,8 @@ class Independent_Cascade_Model():
         self.influence = sum(influences) / len(influences)
         self.active_probabilities = {k:v/mc for k,v in self.active_count.items()}
         self.final_dist = {k:v/mc for k,v in final_active_dist.items()}
+
+        return self.influence
 
 
     def reset_states(self):

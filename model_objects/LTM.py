@@ -29,6 +29,9 @@ class Linear_Threshold_Model():
 
         self.G = graph
 
+    def get_graph(self):
+        return self.G
+
     def run_model(self,active_set_0: set, mc = 100):
         self.active_count = {n:0 for n in self.G.nodes}
         for active in active_set_0: self.active_count[active] = mc
@@ -48,6 +51,8 @@ class Linear_Threshold_Model():
         self.influence = sum(influences)/len(influences)
         self.active_probabilities = {k:v/mc for k,v in self.active_count.items()}
         self.final_dist = {k:v/mc for k,v in final_active_dist.items()}
+
+        return  self.influence
 
     def single_run(self, active_set_0):
         self.set_thresholds()
@@ -123,13 +128,13 @@ class Linear_Threshold_Model():
         print(set_prob_table)
 
 
-def degree_matrix(g: nx.DiGraph):
+def degree_matrix(g: nx.DiGraph, a):
     n = len(g.nodes)
     node_weights = []
     w_matrix = np.zeros((n,n))
     for n,d in g.in_degree():
         if d == 0:  v = 0
-        else:       v = np.random.uniform()/d
+        else:       v = a/d
         node_weights.append(v)
 
     for (u,v) in g.edges():
@@ -137,21 +142,37 @@ def degree_matrix(g: nx.DiGraph):
 
     return w_matrix
 
+def weight_matrix(G: nx.DiGraph, a):
+
+    n = len(G.nodes)
+    w_matrix = np.zeros((n,n))
+    for node in G.nodes:
+        neighbours = set(nx.all_neighbors(G,node))
+        incoming_neigbours = [n for n in neighbours if (n, node) in G.edges]
+
+        t = np.random.uniform(0,a)
+
+        for neighbour in incoming_neigbours:
+            w = np.random.uniform(0,t)
+            t = t - w
+
+            w_matrix[neighbour][node] = w
+
+    return w_matrix
+
+
+
 
 if __name__ == '__main__':
 
-    G = nx.DiGraph()
-    edges = [(0,1,0.4),(0,2,0.4),(2,1,0.4)]
-    G.add_nodes_from([0,1,2])
-    G.add_weighted_edges_from(edges)
+    G = nx.erdos_renyi_graph(n=10, p = 0.1, directed=True)
 
     nx.draw_spring(G,with_labels=True)
     plt.show()
 
-    p = np.array([[0,0.4,0.4],
-         [0,0,0],
-         [0,0.4,0]])
-    ltm = Linear_Threshold_Model(G,p)
-    ltm.run_model({0},mc = 10000)
-    ltm.print_tables()
+    p = weight_matrix(G)
+    print(p)
+    # ltm = Linear_Threshold_Model(G,p)
+    # ltm.run_model({0},mc = 10000)
+    # ltm.print_tables()
 

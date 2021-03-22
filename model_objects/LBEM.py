@@ -1,4 +1,4 @@
-#Live-Blocked Edge Model
+# Live-Blocked Edge Model
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,20 +23,22 @@ To Run model:
 
 """
 
+
 class Live_Blocked_Model():
-    def __init__(self,graph: nx.Graph ,p, from_model = "Unchosen"):
+
+    def __init__(self, graph: nx.Graph, p, from_model="Unchosen"):
         if from_model == "Unchosen":
             print("Pick a model out of LTM or ICM")
             raise ValueError()
         if from_model == "ICM":
             for edge in graph.edges:
-                u,v = edge
+                u, v = edge
                 graph[u][v]["p"] = p[u][v]
                 graph[u][v]["isLive"] = False
 
         else:
             for edge in graph.edges:
-                u,v = edge
+                u, v = edge
                 graph[u][v]["influence"] = p[u][v]
                 graph[u][v]["isLive"] = False
 
@@ -46,11 +48,16 @@ class Live_Blocked_Model():
         self.G = graph
         self.parent_model = from_model
 
-    def run_model(self,active_set_0: set, mc = 100):
-        self.active_count = {n:0 for n in self.G.nodes}
+
+    def get_graph(self):
+        return self.G
+
+
+    def run_model(self, active_set_0: set, mc=100):
+        self.active_count = {n: 0 for n in self.G.nodes}
         for active in active_set_0: self.active_count[active] = mc
-        final_active_dist , influences = {} , []
-        
+        final_active_dist, influences = {}, []
+
         for i in range(mc):
 
             final_active_set = self.single_run(active_set_0)
@@ -62,21 +69,21 @@ class Live_Blocked_Model():
 
             influences.append(len(final_active_set))
 
-
-        self.influence = sum(influences)/len(influences)
-        self.active_probabilities = {k:v/mc for k,v in self.active_count.items()}
-        self.final_dist = {k:v/mc for k,v in final_active_dist.items()}
+        self.influence = sum(influences) / len(influences)
+        self.active_probabilities = {k: v / mc for k, v in self.active_count.items()}
+        self.final_dist = {k: v / mc for k, v in final_active_dist.items()}
 
     def single_run(self, active_set_0):
-        
-        if self.parent_model == "ICM":      self.set_edge_states_ICM()
-        elif self.parent_model == "LTM":    self.set_edge_states_LTM()
-        
-        
+
+        if self.parent_model == "ICM":
+            self.set_edge_states_ICM()
+        elif self.parent_model == "LTM":
+            self.set_edge_states_LTM()
+
         self.activate_set(active_set_0)
         current_active_set = set.copy(active_set_0)
         new_nodes = set.copy(active_set_0)
-        
+
         while len(new_nodes) > 0:
             next_active_set = set.copy(current_active_set)
             for node in new_nodes:
@@ -101,27 +108,27 @@ class Live_Blocked_Model():
 
     def set_edge_states_ICM(self):
         for edge in self.G.edges:
-            u,v = edge
+            u, v = edge
             p_live = self.G[u][v]["p"]
             self.G[u][v]["isLive"] = p_live > np.random.uniform()
 
     def set_edge_states_LTM(self):
         for node in self.G.nodes:
-            #Get Incoming Edges
+            # Get Incoming Edges
             neighbours = set(nx.all_neighbors(self.G, node))
-            incoming_edges = [(n,node) for n in neighbours if (n, node) in self.G.edges]
+            incoming_edges = [(n, node) for n in neighbours if (n, node) in self.G.edges]
             if len(incoming_edges) > 0:
                 idxs = [i for i in range(len(incoming_edges))]
-                p = [self.G.get_edge_data(u,v)["influence"] for u,v in incoming_edges]
-                p_no_edge = 0 if 1 - sum(p) < 0 else 1-sum(p)
+                p = [self.G.get_edge_data(u, v)["influence"] for u, v in incoming_edges]
+                p_no_edge = 0 if 1 - sum(p) < 0 else 1 - sum(p)
                 idxs.append(len(incoming_edges))
                 incoming_edges.append("No Edge")
                 p.append(p_no_edge)
 
-                idx = np.random.choice(idxs, p = p)
+                idx = np.random.choice(idxs, p=p)
                 chosen_edge = incoming_edges[idx]
-                if not(chosen_edge == "No Edge"):
-                    u,v = chosen_edge
+                if not (chosen_edge == "No Edge"):
+                    u, v = chosen_edge
                     self.G[u][v]["isLive"] = True
 
     def reset_states(self):
@@ -132,7 +139,7 @@ class Live_Blocked_Model():
         for n in self.G.nodes:
             self.G.nodes[n]["isActive"] = False
 
-    def activate_set(self,active_set):
+    def activate_set(self, active_set):
         for n in active_set:
             self.G.nodes[n]["isActive"] = True
 
@@ -147,7 +154,7 @@ class Live_Blocked_Model():
             else:
                 colors.append("g")
 
-        nx.draw(g, pos,  edge_color=colors,with_labels=True)
+        nx.draw(g, pos, edge_color=colors, with_labels=True)
         plt.show()
 
     def print_tables(self):
@@ -168,21 +175,18 @@ class Live_Blocked_Model():
         print(set_prob_table)
 
 
-
-
 if __name__ == '__main__':
-
     G = nx.DiGraph()
-    edges = [(0,1,0.4),(0,2,0.4),(2,1,0.4)]
-    G.add_nodes_from([0,1,2])
+    edges = [(0, 1, 0.4), (0, 2, 0.4), (2, 1, 0.4)]
+    G.add_nodes_from([0, 1, 2])
     G.add_weighted_edges_from(edges)
 
-    nx.draw_spring(G,with_labels=True)
+    nx.draw_spring(G, with_labels=True)
     plt.show()
 
-    p = np.array([[0,0.1,0.3],
-         [0,0,0],
-         [0,0.2,0]])
-    lbem = Live_Blocked_Model(G,p,from_model="ICM")
-    lbem.run_model({0},mc = 100000)
+    p = np.array([[0, 0.1, 0.3],
+                  [0, 0, 0],
+                  [0, 0.2, 0]])
+    lbem = Live_Blocked_Model(G, p, from_model="ICM")
+    lbem.run_model({0}, mc=100000)
     lbem.print_tables()
