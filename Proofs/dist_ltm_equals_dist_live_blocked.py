@@ -11,13 +11,13 @@ import time as t
 
 def run_models(n = 100, p = 0.2,iterations = 10, mc = 1000):
     g = nx.erdos_renyi_graph(n,p, directed=True)
-    weight_matrix = degree_matrix(g)
+    weight_matrix = degree_matrix(g,1)
     LBEM = Live_Blocked_Model(g,weight_matrix, from_model="LTM")
     LTM = Linear_Threshold_Model(g,weight_matrix)
     errors , percent_errors= [], []
-    print("n =", n, ", tests =", iterations, ",p_random_graph =", round(p_edge, 3), ",mc = ",mc)
+    print("n =", n, ", tests =", iterations, ",p_random_graph =", round(p, 3), ",mc = ",mc)
     for i in range(iterations):
-        size = np.random.randint(1,10)
+        size = 5
         initial_active_set = {np.random.randint(0,n) for x in range(size)}
         t0 = t.time()
         LBEM.run_model(initial_active_set,mc)
@@ -45,7 +45,9 @@ def run_models(n = 100, p = 0.2,iterations = 10, mc = 1000):
 
 
 
-for i in range(5):
-    p_edge = np.random.uniform(0.01,0.2)
-    run_models(n=100, p = p_edge, mc = 500,iterations=10)
-    print()
+# for i in range(5):
+#     p_edge = np.random.uniform(0.01,0.2)
+#     run_models(n=100, p = p_edge, mc = 500,iterations=10)
+#     print()
+
+run_models( n = 100, p = 0.2, iterations=1, mc = 1000)

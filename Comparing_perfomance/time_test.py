@@ -8,7 +8,7 @@ import time
 p_edge = 0.2
 n = 100
 G = nx.erdos_renyi_graph(n, p_edge, directed=True)
-w_matrix = degree_matrix(G)
+w_matrix = degree_matrix(G,1)
 
 icm = Independent_Cascade_Model(G, w_matrix)
 lbem_icm = Live_Blocked_Model(G, w_matrix,from_model="ICM")
@@ -20,7 +20,7 @@ active_set = highest_degree_active_set(icm, 5)
 
 for m in models:
     t0 = time.time()
-    m.run_model(active_set, mc=1000)
+    m.run_model(active_set, mc=100)
     t = time.time() - t0
     print(t, m.influence)
     print()

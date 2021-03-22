@@ -49,16 +49,16 @@ class Linear_Threshold_Model():
             self.reset_states()
 
         self.influence = sum(influences)/len(influences)
-        self.active_probabilities = {k:v/mc for k,v in self.active_count.items()}
-        self.final_dist = {k:v/mc for k,v in final_active_dist.items()}
 
-        return  self.influence
+        return self.influence
 
     def single_run(self, active_set_0):
         self.set_thresholds()
         self.activate_set(active_set_0)
         current_active_set = set.copy(active_set_0)
         new_nodes = set.copy(active_set_0)
+
+
         while len(new_nodes) > 0:
             next_active_set = set.copy(current_active_set)
             list_of_neigbours = [set(self.G.neighbors(node)) for node in current_active_set]

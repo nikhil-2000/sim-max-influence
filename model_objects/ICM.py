@@ -45,8 +45,6 @@ class Independent_Cascade_Model():
                 final_active_dist[final_active_set] += 1
 
         self.influence = sum(influences) / len(influences)
-        self.active_probabilities = {k:v/mc for k,v in self.active_count.items()}
-        self.final_dist = {k:v/mc for k,v in final_active_dist.items()}
 
         return self.influence
 

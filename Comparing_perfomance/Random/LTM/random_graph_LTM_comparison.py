@@ -1,12 +1,10 @@
 import networkx as nx
-import numpy as np
+
 from Active_Set_Selection.greedy import greedy_active_set
 from Active_Set_Selection.highest_degree import highest_degree_active_set
 from Active_Set_Selection.random import random_active_set
-import matplotlib.pyplot as plt
-from model_objects.ICM import Independent_Cascade_Model
-from model_objects.LTM import  degree_matrix, weight_matrix
-from model_objects.LBEM import  Live_Blocked_Model
+from model_objects.LBEM import Live_Blocked_Model
+from model_objects.LTM import degree_matrix, weight_matrix
 
 
 def random_graph_compare_LTM(n = 100, p_edge = 0.1, alpha = 0.0, mc_greedy = 100, k = 5, is_random_weights = True):
