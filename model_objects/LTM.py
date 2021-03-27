@@ -18,6 +18,7 @@ To Run:
 
 class Linear_Threshold_Model():
     def __init__(self,graph: nx.Graph ,weights):
+
         for edge in graph.edges:
             u,v = edge
             graph[u][v]["b_uv"] = weights[u,v]
@@ -28,9 +29,13 @@ class Linear_Threshold_Model():
 
 
         self.G = graph
+        self.weights = weights
 
     def get_graph(self):
         return self.G
+
+    def get_weights(self):
+        return self.weights
 
     def run_model(self,active_set_0: set, mc = 100):
         self.active_count = {n:0 for n in self.G.nodes}
@@ -150,7 +155,7 @@ def weight_matrix(G: nx.DiGraph, a):
         neighbours = set(nx.all_neighbors(G,node))
         incoming_neigbours = [n for n in neighbours if (n, node) in G.edges]
 
-        t = np.random.uniform(0,a)
+        t = a
 
         for neighbour in incoming_neigbours:
             w = np.random.uniform(0,t)

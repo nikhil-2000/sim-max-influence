@@ -12,10 +12,13 @@ import time as t
 def run_models(n = 100, p = 0.2,iterations = 10, mc = 1000):
     g = nx.erdos_renyi_graph(n,p, directed=True)
     weight_matrix = degree_matrix(g,1)
+
     LBEM = Live_Blocked_Model(g,weight_matrix, from_model="LTM")
     LTM = Linear_Threshold_Model(g,weight_matrix)
+
     errors , percent_errors= [], []
     print("n =", n, ", tests =", iterations, ",p_random_graph =", round(p, 3), ",mc = ",mc)
+
     for i in range(iterations):
         size = 5
         initial_active_set = {np.random.randint(0,n) for x in range(size)}

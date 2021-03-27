@@ -1,4 +1,6 @@
 #Independent Cascade Model
+import time
+
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,9 +27,13 @@ class Independent_Cascade_Model():
 
 
         self.G = graph
+        self.p_matrix = p_matrix
 
     def get_graph(self):
         return self.G
+
+    def get_weights(self):
+        return self.p_matrix
 
     def run_model(self,active_set_0: set,mc = 100):
         self.active_count = {n:0 for n in self.G.nodes}
@@ -45,7 +51,6 @@ class Independent_Cascade_Model():
                 final_active_dist[final_active_set] += 1
 
         self.influence = sum(influences) / len(influences)
-
         return self.influence
 
 

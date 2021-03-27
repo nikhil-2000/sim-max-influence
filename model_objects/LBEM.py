@@ -51,6 +51,7 @@ class Live_Blocked_Model():
 
         self.G = graph
         self.parent_model = from_model
+        self.weights = p
 
         self.model_runtime = 0
         self.generate_edges_runtime = 0
@@ -59,6 +60,8 @@ class Live_Blocked_Model():
     def get_graph(self):
         return self.G
 
+    def get_weights(self):
+        return self.weights
 
     def run_model(self, active_set_0: set, mc=100):
         self.active_count = {n: 0 for n in self.G.nodes}
@@ -93,27 +96,28 @@ class Live_Blocked_Model():
         self.generate_edges_runtime += t1
 
         t0 = time.time()
-        self.activate_set(active_set_0)
-        current_active_set = set.copy(active_set_0)
-        new_nodes = set.copy(active_set_0)
+        # self.activate_set(active_set_0)
+        # current_active_set = set.copy(active_set_0)
+        # new_nodes = set.copy(active_set_0)
 
-        while len(new_nodes) > 0:
-            next_active_set = set.copy(current_active_set)
-            for node in new_nodes:
-                neighbours = list(self.G_copy.neighbors(node))
-                edges = [(neighbour, self.G_copy.get_edge_data(node, neighbour)) for neighbour in neighbours]
-
-                self.activate_neighbours(edges, next_active_set)
-
-            new_nodes = next_active_set - current_active_set
-            current_active_set = next_active_set
-
-        self.reset_states()
-        # final_active_set = set()
-        # for active in active_set_0:
-        #     for node in self.G_copy.nodes:
-        #         if nx.algorithms.has_path(self.G_copy, active, node):
-        #             final_active_set.add(node)
+        # while len(new_nodes) > 0:
+        #     next_active_set = set.copy(current_active_set)
+        #     for node in new_nodes:
+        #         neighbours = list(self.G_copy.neighbors(node))
+        #         edges = [(neighbour, self.G_copy.get_edge_data(node, neighbour)) for neighbour in neighbours]
+        #
+        #         self.activate_neighbours(edges, next_active_set)
+        #
+        #     new_nodes = next_active_set - current_active_set
+        #     current_active_set = next_active_set
+        #
+        # self.reset_states()
+        final_active_set = set(active_set_0)
+        for active in active_set_0:
+            other_nodes = self.G_copy.nodes - final_active_set
+            for node in other_nodes:
+                if nx.algorithms.has_path(self.G_copy, active, node):
+                    final_active_set.add(node)
 
         t1 = time.time() - t0
         self.model_runtime += t1
@@ -132,9 +136,9 @@ class Live_Blocked_Model():
             u, v = edge
             p_live = self.G[u][v]["p"]
             # self.G[u][v]["isLive"] = p_live > np.random.uniform()
-            # isLive = p_live > np.random.uniform()
-            # if not isLive:
-            #     self.G_copy.remove_edge(u,v)
+            isLive = p_live > np.random.uniform()
+            if not isLive:
+                self.G_copy.remove_edge(u,v)
 
 
     def set_edge_states_LTM(self):
