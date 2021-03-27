@@ -18,6 +18,7 @@ To Run:
 
 class Linear_Threshold_Model():
     def __init__(self,graph: nx.Graph ,weights):
+
         for edge in graph.edges:
             u,v = edge
             graph[u][v]["b_uv"] = weights[u,v]
@@ -28,9 +29,13 @@ class Linear_Threshold_Model():
 
 
         self.G = graph
+        self.weights = weights
 
     def get_graph(self):
         return self.G
+
+    def get_weights(self):
+        return self.weights
 
     def run_model(self,active_set_0: set, mc = 100):
         self.active_count = {n:0 for n in self.G.nodes}
@@ -49,16 +54,16 @@ class Linear_Threshold_Model():
             self.reset_states()
 
         self.influence = sum(influences)/len(influences)
-        self.active_probabilities = {k:v/mc for k,v in self.active_count.items()}
-        self.final_dist = {k:v/mc for k,v in final_active_dist.items()}
 
-        return  self.influence
+        return self.influence
 
     def single_run(self, active_set_0):
         self.set_thresholds()
         self.activate_set(active_set_0)
         current_active_set = set.copy(active_set_0)
         new_nodes = set.copy(active_set_0)
+
+
         while len(new_nodes) > 0:
             next_active_set = set.copy(current_active_set)
             list_of_neigbours = [set(self.G.neighbors(node)) for node in current_active_set]
@@ -150,7 +155,7 @@ def weight_matrix(G: nx.DiGraph, a):
         neighbours = set(nx.all_neighbors(G,node))
         incoming_neigbours = [n for n in neighbours if (n, node) in G.edges]
 
-        t = np.random.uniform(0,a)
+        t = a
 
         for neighbour in incoming_neigbours:
             w = np.random.uniform(0,t)
