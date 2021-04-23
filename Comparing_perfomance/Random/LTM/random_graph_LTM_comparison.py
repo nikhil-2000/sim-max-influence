@@ -92,8 +92,8 @@ def check_all_params():
 
 def check_new_params():
     p_edge = 0.1
-    alpha = [0.1,0.2,0.3, 0.4, 0.5,0.6,0.7, 0.8,0.9, 1.0]
-    mc_greedy = 100
+    alpha = [0.2, 0.4,0.6,0.8,1.0]
+    mc_greedy = 1000
     k = 5
     n = 100
 
@@ -122,5 +122,6 @@ def check_specific_params(runs = 1):
         pickle.dump(sets, open('tmp/sets.txt', 'wb'))
         pickle.dump(weights, open('tmp/weights.txt', 'wb'))
 
-for i in range(5):
+for i in range(2):
+    print("Run" , i)
     check_new_params()

@@ -41,15 +41,14 @@ def plot_random_weights(main_data, ax):
     # main_data = main_data.drop("p_e", axis="columns").groupby(['alpha', 'algorithm']).mean().reset_index()
 
 
-    low_p = main_data.loc[main_data.p_e == 0.1].groupby(['alpha','algorithm']).mean().reset_index()
-    high_p = main_data.loc[main_data.p_e == 0.2].groupby(['alpha','algorithm']).mean().reset_index()
+    data = main_data.loc[main_data.p_e == 0.2].groupby(['alpha','algorithm']).mean().reset_index()
 
     sns.set_theme(style="darkgrid")
     sns.lineplot(x="alpha", y="influence", hue="algorithm",
-                 data=low_p, ax = ax)
-    sns.lineplot(x="alpha", y="influence", hue="algorithm",
-                 style='algorithm', dashes=[(2, 2), (2, 2), (2,2)],
-                 data=high_p, ax = ax)
+                 data=data, ax = ax)
+    # sns.lineplot(x="alpha", y="influence", hue="algorithm",
+    #              style='algorithm', dashes=[(2, 2), (2, 2), (2,2)],
+    #              data=high_p, ax = ax)
     # sns.lineplot(x="alpha", y = "influence", hue="algorithm", data = main_data, ax = ax)
 
     # ax.legend(loc=2)
@@ -59,15 +58,13 @@ def plot_degree_weights(main_data, ax):
     main_data = main_data.loc[main_data.random_weights == 0].melt(
         id_vars=["n", "p_e", "alpha", "mc_greedy", "k", "random_weights"],
         var_name="algorithm", value_name="influence")
-    low_p = main_data.loc[main_data.p_e == 0.1].groupby(['alpha', 'algorithm']).mean().reset_index()
-    high_p = main_data.loc[main_data.p_e == 0.2].groupby(['alpha', 'algorithm']).mean().reset_index()
+    data = main_data.loc[main_data.p_e == 0.2].groupby(['alpha', 'algorithm']).mean().reset_index()
+    # high_p = main_data.loc[main_data.p_e == 0.2].groupby(['alpha', 'algorithm']).mean().reset_index()
 
     sns.set_theme(style="darkgrid")
     sns.lineplot(x="alpha", y="influence", hue="algorithm",
-                 data=low_p, ax = ax)
-    sns.lineplot(x="alpha", y="influence", hue="algorithm",
-                 style='algorithm', dashes=[(2, 2), (2, 2), (2, 2)],
-                 data=high_p, ax = ax)
+                 data=data, ax = ax)
+
 
 
 model = "LTM"
@@ -82,9 +79,9 @@ elif model == "LTM":
     main_data = get_ltm_df()
     file_name = "LTM/ltm_graph.png"
 
-
-
 plot_degree_weights(main_data, axs[0])
 plot_random_weights(main_data,axs[1])
+
+
 plt.show()
 fig.savefig(file_name)
